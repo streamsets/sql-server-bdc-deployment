@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authoring-datacollector-deployment
+  namespace: mssql-cluster
+  labels:
+    app: authoring-datacollector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authoring-datacollector
+  template:
+    metadata:
+      labels:
+        app: authoring-datacollector
+    spec:
+      containers:
+      - name: authoring-datacollector
+        image: xavibaques/sdc-sql-server-bdc:latest
+        ports:
+        - containerPort: 18630
+          protocol: TCP
+        env:
+        - name: SDC_CONF_SDC_BASE_HTTP_URL
+          value: https://${external_ip}:443
+        - name: SDC_CONF_HTTP_ENABLE_FORWARDED_REQUESTS
+          value: true
+        volumeMounts:
+        - name: streamsets-sql-server-bdc-resources
+          mountPath: /opt/streamsets-datacollector-3.11.0/resources/sql-server-bdc-resources/
+      volumes:
+      - name: streamsets-sql-server-bdc-resources
+        secret:
+          secretName: streamsets-sql-server-bdc-resources  

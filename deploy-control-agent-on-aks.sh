@@ -3,7 +3,7 @@
 function usage() {
   echo "
     Usage: $0 <ControlHub_URL> <SCH_ORG> <SCH_USER> <SCH_USER_PASSWORD> <KUBE_NAMESPACE> <CLUSTER_NAME> <RESOURCE_GROUP>
-  
+
     Example: $0 https://cloud.streamsets.com testOrg streamsetsUser@testOrg admin1234 namespace clusterName resourceGroup
   "
   exit -1
@@ -32,15 +32,6 @@ kubectl create namespace ${KUBE_NAMESPACE}
 
 ## Set Context
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
-
-## Cleanup
-kubectl delete deployment streamsets
-kubectl delete secrets streamsets-creds
-kubectl delete secrets streamsets-compsecret
-kubectl delete configmap streamsets-config
-kubectl delete serviceaccount streamsets-agent
-kubectl delete role streamsets-agent -n ${KUBE_NAMESPACE}
-kubectl delete rolebinding streamsets-agent
 
 ## Get auth token fron Control Hub
 # SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/# login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
@@ -76,7 +67,7 @@ kubectl create configmap streamsets-config \
 ## Create a service account to run the agent
 kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
 
-## Create a role for the service account with permissions to 
+## Create a role for the service account with permissions to
 ## create pods (among other things)
 kubectl create role streamsets-agent \
     --verb=get,list,watch,create,update,delete,patch \
@@ -99,4 +90,3 @@ while [ -z $temp_agent_Id ]; do
   temp_agent_Id=$(curl -L "${SCH_URL}/provisioning/rest/v1/dpmAgents?organization=${SCH_ORG}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}" | jq -r "map(select(any(.id; contains(\"${agent_id}\")))|.id)[]")
 done
 echo "DPM Agent \"${temp_agent_Id}\" successfully registered with SCH"
-

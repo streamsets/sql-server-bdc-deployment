@@ -15,7 +15,7 @@ This guide describes how to deploy a StreamSets Agent, register it in ControlHub
    * CLUSTER_NAME: Kubernetes cluster name
    * RESOURCE_GROUP: Azure resource group
 
-3. Run sdc-bdc-deployment-all-in-one.sh passing as arguments ControlHub user and ControlHub user password. Example: ./sdc-bdc-deployment-all-in-one.sh rony@microsoft-partner rony1234
+3. Run sdc-bdc-deployment-all-in-one.sh passing as arguments ControlHub user and ControlHub user password. Example: ./sdc-bdc-deployment-all-in-one.sh username@organizationname password
     * If asked to overwrite an object in kubeconfig file just say yes ('y')
     * If everything runs as expected you should se the message: "Deployment Successful"
 
@@ -30,6 +30,6 @@ This guide describes how to deploy a StreamSets Agent, register it in ControlHub
    * CLUSTER_NAME: Kubernetes cluster name
    * RESOURCE_GROUP: Azure resource group
 
-3. Run sdc-bdc-deployment-all-in-one-tear-down.sh passing as arguments ControlHub user and ControlHub user password. Example: ./sdc-bdc-deployment-all-in-one-tear-down.sh rony@microsoft-partner rony1234
+3. Run sdc-bdc-deployment-all-in-one-tear-down.sh passing as arguments ControlHub user and ControlHub user password. Example: ./sdc-bdc-deployment-all-in-one-tear-down.sh username@organizationname password
     * If asked to overwrite an object in kubeconfig file just say yes ('y')
     * If everything runs as expected you should se the message: "Successfully deleted all corresponding objects"

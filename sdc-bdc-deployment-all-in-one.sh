@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -x # Option to show script debug info in console
+ set -x # Option to show script debug info in console
 
 function usage() {
   echo "
@@ -14,6 +14,9 @@ if [ "$#" -ne 2 ]; then
     usage
 fi
 
+# Please read the StreamSets EULA https://streamsets.com/eula. 
+# If you agree please change the following line to ACCEPT_EULA=Y
+ACCEPT_EULA=N
 SCH_URL=https://cloud.streamsets.com # ControlHub_URL
 SCH_ORG=organizationname
 SCH_USER=$1
@@ -25,6 +28,11 @@ RESOURCE_GROUP=mssql
 SCH_DEPLOYMENT_NAME="Authoring SDC"
 SCH_DEPLOYMENT_LABELS=auth-sdc
 SDC_REPLICAS=1
+
+if [ "${ACCEPT_EULA}" != "Y" ]; then
+  echo "Please read the StreamSets EULA https://streamsets.com/eula and accept it by setting ACCEPT_EULA=Y"
+  exit 1
+fi
 
 echo "Getting SCH Token..."
 export SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')

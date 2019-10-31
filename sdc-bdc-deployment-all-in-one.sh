@@ -74,7 +74,7 @@ echo "Deploying Authoring datacollector deployment"
 rm -rf ${PWD}/_tmp_deployment.yaml
 cat ./sdc-sql-server-bdc-deployment_init-containers.yaml | envsubst > ${PWD}/_tmp_deployment.yaml
 
-kubectl get svc -n mssql-cluster -o json | jq -r '.items[] | select(.status.loadBalancer.ingress[0].ip!=null) | {"serviceName": .metadata.name, "ip":.status.loadBalancer.ingress[0].ip, "port":.spec.ports[0].port}' > ${PWD}/sql-server-ip-and-port.json
+kubectl get svc -n ${KUBE_NAMESPACE} -o json | jq -r '.items[] | select(.status.loadBalancer.ingress[0].ip!=null) | {"serviceName": .metadata.name, "ip":.status.loadBalancer.ingress[0].ip, "port":.spec.ports[0].port}' > ${PWD}/sql-server-ip-and-port.json
 
 kubectl create secret generic streamsets-sql-server-bdc-resources --namespace=${KUBE_NAMESPACE} --from-file=${PWD}/sql-server-ip-and-port.json
 rm -rf ${PWD}/sql-server-ip-and-port.json

@@ -29,6 +29,8 @@ spec:
         volumeMounts:
         - name: streamsets-sql-server-bdc-resources
           mountPath: /opt/streamsets-datacollector-3.11.0/resources/sql-server-bdc-resources/
+        - name: streamsets-sql-server-bdc-resources
+          mountPath: /resources/sql-server-bdc-resources/
       volumes:
       - name: streamsets-sql-server-bdc-resources
         secret:

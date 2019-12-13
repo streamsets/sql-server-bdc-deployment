@@ -15,18 +15,19 @@ spec:
   selector:
     app: authoring-datacollector
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: authoring-sdc
+  labels:
+    app: authoring-datacollector
   annotations:
-    kubernetes.io/ingress.class: traefik
+    kubernetes.io/ingress.class: traefik-authoring-datacollector
 spec:
   rules:
-  - host:
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: authoring
-          servicePort: 18635
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: authoring
+              servicePort: 18635

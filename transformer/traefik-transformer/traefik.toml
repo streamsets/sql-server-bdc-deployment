@@ -12,5 +12,5 @@ defaultEntryPoints = ["http","https"]
       CertFile = "/ssl/tls.crt"
       KeyFile = "/ssl/tls.key"
 [kubernetes]
-  labelselector = "app=authoring-datacollector"
-  ingressClass = "traefik-authoring-datacollector"
+  labelselector = "app=transformer"
+  ingressClass = "traefik-transformer"

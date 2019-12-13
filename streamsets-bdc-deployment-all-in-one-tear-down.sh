@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -x # Option to show script debug info in console
+set -x # Option to show script debug info in console
 
 function usage() {
   echo "
@@ -7,6 +7,7 @@ function usage() {
 
     Example: $0 rony@microsoft-partner rony1234
   "
+  # shellcheck disable=SC2242
   exit -1
 }
 
@@ -58,5 +59,11 @@ popd
 
 echo "Deleting StreamSets Agent..."
 ./deploy-control-agent-on-aks-tear-down.sh ${SCH_URL} ${SCH_ORG} ${SCH_USER} ${SCH_PASSWORD} ${KUBE_NAMESPACE} ${CLUSTER_NAME} ${RESOURCE_GROUP}
+
+
+echo "Deleting StreamSets Transformer..."
+pushd ./transformer
+./deploy-transformer-on-aks-tear-down.sh ${SCH_URL} ${SCH_ORG} ${SCH_USER} ${SCH_PASSWORD} ${KUBE_NAMESPACE} ${CLUSTER_NAME} ${RESOURCE_GROUP}
+popd
 
 echo "Successfully deleted all corresponding objects"

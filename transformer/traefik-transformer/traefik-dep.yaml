@@ -2,32 +2,32 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: traefik-ingress-controller
+  name: traefik-ingress-controller-transformer
   labels:
-    k8s-app: traefik-ingress-lb
+    k8s-app: traefik-ingress-lb-transformer
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: traefik-ingress-lb
+      k8s-app: traefik-ingress-lb-transformer
   template:
     metadata:
       labels:
-        k8s-app: traefik-ingress-lb
-        name: traefik-ingress-lb
+        k8s-app: traefik-ingress-lb-transformer
+        name: traefik-ingress-lb-transformer
     spec:
-      serviceAccountName: traefik-ingress-controller
+      serviceAccountName: traefik-ingress-controller-transformer
       terminationGracePeriodSeconds: 60
       volumes:
       - name: ssl
         secret:
-          secretName: traefik-cert
+          secretName: traefik-cert-transformer
       - name: config
         configMap:
-          name: traefik-conf
+          name: traefik-conf-transformer
       containers:
       - image: traefik:1.7
-        name: traefik-ingress-lb
+        name: traefik-ingress-lb-transformer
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: "/ssl"
@@ -42,11 +42,11 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: traefik-ingress-service
+  name: traefik-ingress-service-transformer
 spec:
   type: LoadBalancer
   selector:
-    k8s-app: traefik-ingress-lb
+    k8s-app: traefik-ingress-lb-transformer
   ports:
     - protocol: TCP
       port: 80

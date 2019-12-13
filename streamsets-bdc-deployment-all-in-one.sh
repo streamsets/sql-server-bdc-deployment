@@ -1,5 +1,5 @@
 #!/bin/bash
- set -x # Option to show script debug info in console
+set -x # Option to show script debug info in console
 
 function usage() {
   echo "
@@ -7,6 +7,7 @@ function usage() {
 
     Example: $0 username@organizationname password
   "
+  # shellcheck disable=SC2242
   exit -1
 }
 
@@ -14,7 +15,7 @@ if [ "$#" -ne 2 ]; then
     usage
 fi
 
-# Please read the StreamSets EULA https://streamsets.com/eula. 
+# Please read the StreamSets EULA https://streamsets.com/eula.
 # If you agree please change the following line to ACCEPT_EULA=Y
 ACCEPT_EULA=N
 SCH_URL=https://cloud.streamsets.com # ControlHub_URL
@@ -97,5 +98,10 @@ echo "Successfully started deployment \"authoring-datacollector-deployment\" on 
 
 echo "Deleting temporary files..."
 rm -rf ${PWD}/_tmp_deployment.yaml
+
+echo "Deploying StreamSets Transformer..."
+pushd ./transformer
+./deploy-transformer-on-aks.sh ${SCH_URL} ${SCH_ORG} ${SCH_USER} ${SCH_PASSWORD} ${KUBE_NAMESPACE} ${CLUSTER_NAME} ${RESOURCE_GROUP}
+popd
 
 echo "Deployment Successful"

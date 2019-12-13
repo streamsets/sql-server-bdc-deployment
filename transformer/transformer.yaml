@@ -1,0 +1,109 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamsets-transformer
+  labels:
+    app: transformer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transformer
+  template:
+    metadata:
+      labels:
+        app: transformer
+    spec:
+      serviceAccountName: streamsets-transformer
+      containers:
+        - name: streamsets
+          image: streamsets/transformer:3.12.0
+          ports:
+            - containerPort: 19630
+              protocol: TCP
+          env:
+            - name: HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: dpm_conf_dpm_enabled
+              value: "true"
+            - name: dpm_conf_dpm_base_url
+              valueFrom:
+                configMapKeyRef:
+                  name: streamsets-transformer-config
+                  key: sch_url
+            - name: dpm_conf_dpm_remote_control_job_labels
+              value: "all"
+            - name: transformer_token_string
+              valueFrom:
+                secretKeyRef:
+                  name: streamsets-transformer-creds
+                  key: transformer_token_string
+            - name: transformer_id
+              valueFrom:
+                configMapKeyRef:
+                  name: streamsets-transformer-config
+                  key: transformer_id
+            - name: transformer_conf_transformer_base_http_url
+              valueFrom:
+                configMapKeyRef:
+                  name: streamsets-transformer-config
+                  key: transformer_external_url
+            - name: transformer_conf_kubernetes_ingress_service_enabled
+              value: "true"
+            - name: transformer_conf_kubernetes_namespace
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: transformer_conf_kubernetes_serviceAccountName
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: transformer_conf_kubernetes_persistent_volume_name
+              value: "streamsets-transformer-vol"
+            - name: transformer_conf_kubernetes_persistent_volume_mountPath
+              value: "/streamsets"
+            - name: transformer_conf_kubernetes_persistent_volume_claimName
+              value: "streamsets-transformer-pvc"
+          volumeMounts:
+            - mountPath: "/streamsets"
+              name: streamsets-transformer-vol
+      volumes:
+        - name: streamsets-transformer-vol
+          persistentVolumeClaim:
+            claimName: streamsets-transformer-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamsets-transformer
+  labels:
+    app: transformer
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 19635
+      targetPort: 19630
+      protocol: TCP
+  selector:
+    app: transformer
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: streamsets-transformer
+  labels:
+    app: transformer
+  annotations:
+    kubernetes.io/ingress.class: traefik-transformer
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: streamsets-transformer
+              servicePort: 19635

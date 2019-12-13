@@ -1,0 +1,37 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: streamsets-transformer-vol
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  azureFile:
+    secretName: streamsets-transformer-creds
+    shareName: streamsets-transformer
+    readOnly: false
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - uid=1000
+    - gid=1000
+    - mfsymlinks
+    - nobrl
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: streamsets-transformer-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  volumeName: streamsets-transformer-vol
+  resources:
+    requests:
+      storage: 1Gi

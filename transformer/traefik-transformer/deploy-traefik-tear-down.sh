@@ -24,12 +24,12 @@ export KUBE_NAMESPACE=$1
 kubectl config set-context $(kubectl config current-context) --namespace="${KUBE_NAMESPACE}"
 
 # Cleanup
-kubectl delete deployment traefik-ingress-controller
-kubectl delete service traefik-ingress-service
-kubectl delete clusterrole traefik-ingress-controller
-kubectl delete clusterrolebinding traefik-ingress-controller
-kubectl delete serviceaccount traefik-ingress-controller
-kubectl delete configmap traefik-conf
-kubectl delete secret traefik-cert
+kubectl delete deployment traefik-ingress-controller-transformer
+kubectl delete service traefik-ingress-service-transformer
+kubectl delete clusterrole traefik-ingress-controller-transformer
+kubectl delete clusterrolebinding traefik-ingress-controller-transformer
+kubectl delete serviceaccount traefik-ingress-controller-transformer
+kubectl delete configmap traefik-conf-transformer
+kubectl delete secret traefik-cert-transformer
 rm -rf tls.key
 rm -rf tls.crt

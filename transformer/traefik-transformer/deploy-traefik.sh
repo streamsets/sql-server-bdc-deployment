@@ -24,17 +24,17 @@ export KUBE_NAMESPACE=$1
 kubectl config set-context $(kubectl config current-context) --namespace=${KUBE_NAMESPACE}
 
 # Create a service account
-kubectl create serviceaccount traefik-ingress-controller --namespace=${KUBE_NAMESPACE}
+kubectl create serviceaccount traefik-ingress-controller-transformer --namespace=${KUBE_NAMESPACE}
 
 # Create a cluster role
-kubectl create clusterrole traefik-ingress-controller \
+kubectl create clusterrole traefik-ingress-controller-transformer \
     --verb=get,list,watch \
     --resource=endpoints,ingresses.extensions,services,secrets
 
 # Bind the service account to the role
-kubectl create clusterrolebinding traefik-ingress-controller \
-    --clusterrole=traefik-ingress-controller \
-    --serviceaccount=${KUBE_NAMESPACE}:traefik-ingress-controller
+kubectl create clusterrolebinding traefik-ingress-controller-transformer \
+    --clusterrole=traefik-ingress-controller-transformer \
+    --serviceaccount=${KUBE_NAMESPACE}:traefik-ingress-controller-transformer
 
 # Generate a self signed certificate
 openssl req -newkey rsa:2048 \
@@ -46,12 +46,12 @@ openssl req -newkey rsa:2048 \
     -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=mycompany.com"
 
 # Store the cert in a secret
-kubectl create secret generic traefik-cert --namespace=${KUBE_NAMESPACE} \
+kubectl create secret generic traefik-cert-transformer --namespace=${KUBE_NAMESPACE} \
     --from-file=tls.crt \
     --from-file=tls.key
 
 # Load the traefik.toml file into a configmap
-kubectl create configmap traefik-conf --from-file=traefik.toml --namespace=${KUBE_NAMESPACE}
+kubectl create configmap traefik-conf-transformer --from-file=traefik.toml --namespace=${KUBE_NAMESPACE}
 
 # Create traefik service
 kubectl create -f traefik-dep.yaml --namespace=${KUBE_NAMESPACE}

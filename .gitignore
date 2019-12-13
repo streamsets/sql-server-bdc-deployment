@@ -1,0 +1,65 @@
+# Git
+*.rej
+*.orig
+
+# Byte-compiled / optimized / system related files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Maven
+target
+
+# VS Code
+.vscode
+**/.factorypath
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea
+
+# Eclipse
+.classpath
+.project
+.settings
+
+#vim
+*.swp
+
+#Node.js
+node
+node_modules
+npm-debug.log
+
+#Oxygen
+__MACOSX
+
+#OSX
+.DS_Store
+
+.gitreview
+
+# maven shade
+dependency-reduced-pom.xml
+
+container/runInfo
+container/var
+datacollector-ui/package-lock.json
+
+venv
+package-lock.json
+
+# distribution
+**/streamsets-*.tgz
+**/streamsets-*.tar
+**/streamsets-*.rpm
+**/transformer.id
+**/agent.id
+**/**/tls.crt
+**/**/tls.key
+dep.id

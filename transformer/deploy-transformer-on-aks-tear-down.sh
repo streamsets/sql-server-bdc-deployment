@@ -61,6 +61,10 @@ curl -X POST -d "[ \"${transformer_id}\" ]" ${SCH_URL}/security/rest/v1/organiza
 $(curl -X "DELETE" "${SCH_URL}/jobrunner/rest/v1/sdc/${transformer_id}" --header "Content-Type:application/json" --header "X-Requested-By:SDC" --header "X-SS-REST-CALL:true" --header "X-SS-User-Auth-Token:${SCH_TOKEN}")
 rm -f transformer.id
 
+rm -f gateway.crt
+rm -f ingress.crt
+rm -f truststore.jks
+
 echo "Deleting Traefik ingress controller..."
 pushd ./traefik-transformer
 ./deploy-traefik-tear-down.sh ${KUBE_NAMESPACE}
@@ -69,13 +73,14 @@ popd
 echo "Deleting StreamSets Transformer from Kubernetes Cluster..."
 kubectl delete deployment streamsets-transformer
 kubectl delete secrets streamsets-transformer-creds
+kubectl delete secrets streamsets-transformer-cert
 kubectl delete configmap streamsets-transformer-config
 kubectl delete serviceaccount streamsets-transformer
 kubectl delete role streamsets-transformer -n "${KUBE_NAMESPACE}"
 kubectl delete rolebinding streamsets-transformer
 kubectl delete service streamsets-transformer
 kubectl delete ingresses.extensions streamsets-transformer
-# Delete all complete Transformer Driver pods
+# Delete all completed Transformer Driver pods
 kubectl delete pod --field-selector=status.phase==Succeeded
 kubectl delete persistentvolumeclaims streamsets-transformer-pvc
 kubectl delete persistentvolume streamsets-transformer-vol

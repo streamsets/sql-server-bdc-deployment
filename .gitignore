@@ -63,3 +63,5 @@ package-lock.json
 **/**/tls.crt
 **/**/tls.key
 dep.id
+**/**/*.crt
+**/**/*.jks

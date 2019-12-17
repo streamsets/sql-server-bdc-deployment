@@ -1,11 +1,13 @@
 #!/bin/sh
 
+# shellcheck disable=SC2112
 function usage() {
   echo "
     Usage: $0 <ControlHub_URL> <SCH_ORG> <SCH_USER> <SCH_USER_PASSWORD> <KUBE_NAMESPACE> <CLUSTER_NAME> <RESOURCE_GROUP>
 
     Example: $0 https://cloud.streamsets.com testOrg streamsetsUser@testOrg admin1234 namespace clusterName resourceGroup
   "
+  # shellcheck disable=SC2242
   exit -1
 }
 

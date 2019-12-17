@@ -67,10 +67,19 @@ spec:
               value: "/streamsets"
             - name: transformer_conf_kubernetes_persistent_volume_claimName
               value: "streamsets-transformer-pvc"
+            - name: transformer_conf_https_truststore_path
+              value: "truststore.jks"
+            - name: transformer_conf_https_truststore_password
+              value: "password"
           volumeMounts:
+            - mountPath: "/ssl"
+              name: "ssl"
             - mountPath: "/streamsets"
               name: streamsets-transformer-vol
       volumes:
+        - name: ssl
+          secret:
+            secretName: streamsets-transformer-cert
         - name: streamsets-transformer-vol
           persistentVolumeClaim:
             claimName: streamsets-transformer-pvc

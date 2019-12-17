@@ -37,6 +37,7 @@ SCH_PASSWORD=$4
 KUBE_NAMESPACE=$5
 CLUSTER_NAME=$6
 RESOURCE_GROUP=$7
+BDC_KUBE_NAMESPACE="mssql-cluster"
 
 ## Update kubectl config with connection info
 az aks get-credentials --resource-group "${RESOURCE_GROUP}" --name ${CLUSTER_NAME}
@@ -96,11 +97,11 @@ kubectl create secret generic streamsets-transformer-creds \
 
 ## Generate a UUID for the transformer
 transformer_id=$(docker run --rm andyneff/uuidgen uuidgen -t)
-echo ${transformer_id} > transformer.id
+echo "${transformer_id}" > transformer.id
 
 echo "Deploying traefik ingress controller for transformer..."
 pushd ./traefik-transformer
-./deploy-traefik.sh ${KUBE_NAMESPACE}
+./deploy-traefik.sh "${KUBE_NAMESPACE}"
 popd
 
 echo "Waiting until traefik is assigned an external IP (this can take a minute)..."
@@ -108,13 +109,13 @@ external_ip=""
 while true; do
     #This section is a little messy because some K8s implementations return the address in a field named 'ip' and others in field named 'hostname"
     ingress=$(kubectl get svc traefik-ingress-service-transformer -o json)
-    ingress_host=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
+    ingress_host=$(echo "$ingress" | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].hostname')
     if [ -n "${ingress_host}" -a "${ingress_host}" != "null" ];
     then
       external_ip=$ingress_host
       break
     else
-      ingress_ip=$(echo $ingress | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
+      ingress_ip=$(echo "$ingress" | jq -r 'select(.status.loadBalancer.ingress != null) | .status.loadBalancer.ingress[].ip')
       if [ -n "${ingress_ip}" -a "${ingress_ip}" != "null" ];
       then
         external_ip=$ingress_ip
@@ -128,26 +129,46 @@ export external_ip
 
 ## Store connection properties in a configmap for the transformer
 kubectl create configmap streamsets-transformer-config \
-    --from-literal=org=${SCH_ORG} \
-    --from-literal=sch_url=${SCH_URL} \
-    --from-literal=transformer_id=${transformer_id} \
-    --from-literal=transformer_external_url=https://${external_ip}
+    --from-literal=org="${SCH_ORG}" \
+    --from-literal=sch_url="${SCH_URL}" \
+    --from-literal=transformer_id="${transformer_id}" \
+    --from-literal=transformer_external_url=https://"${external_ip}"
 
 ## Create a service account to run the transformer
-kubectl create serviceaccount streamsets-transformer --namespace=${KUBE_NAMESPACE}
+kubectl create serviceaccount streamsets-transformer --namespace="${KUBE_NAMESPACE}"
 
 ## Create a role for the service account with permissions to
 ## create pods (among other things)
 kubectl create role streamsets-transformer \
     --verb=get,list,watch,create,update,delete,patch \
     --resource=pods,secrets,configmaps,replicasets,ingresses,services \
-    --namespace=${KUBE_NAMESPACE}
+    --namespace="${KUBE_NAMESPACE}"
 
 ## Bind the role to the service account
 kubectl create rolebinding streamsets-transformer \
     --role=streamsets-transformer \
-    --serviceaccount=${KUBE_NAMESPACE}:streamsets-transformer \
-    --namespace=${KUBE_NAMESPACE}
+    --serviceaccount="${KUBE_NAMESPACE}":streamsets-transformer \
+    --namespace="${KUBE_NAMESPACE}"
+
+## Extract certificate from SQL Server 2019 Big Data Cluster Gateway IP
+gatewayIp=$(kubectl get services --field-selector metadata.name=gateway-svc-external --namespace="${BDC_KUBE_NAMESPACE}" -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")
+gatewayPort=$(kubectl get services --field-selector metadata.name=gateway-svc-external --namespace="${BDC_KUBE_NAMESPACE}" -o jsonpath="{.items[0].spec.ports[0].port}")
+echo | openssl s_client -connect "$gatewayIp":"$gatewayPort" | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > gateway.crt
+
+## Import gateway HTTPs certificate in to the truststore.jks
+keytool -import -file gateway.crt -trustcacerts -noprompt -alias SQLServerCA -storepass password -keystore truststore.jks
+
+## Extract certificate from Minikube Ingress IP
+echo | openssl s_client -connect "$external_ip":443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ingress.crt
+
+## Import Minikube Ingress HTTPs certificate in to the truststore.jks
+keytool -import -file ingress.crt -trustcacerts -noprompt -alias IngressCA -storepass password -keystore truststore.jks
+
+## Copy the CA certs from jre/lib/security/cacerts to etc/truststore.jks
+keytool -importkeystore -srckeystore "$JAVA_HOME"/jre/lib/security/cacerts -srcstorepass changeit -destkeystore truststore.jks -deststorepass password
+
+## Store the truststore.jks in a secret
+kubectl create secret generic streamsets-transformer-cert --namespace="${KUBE_NAMESPACE}" --from-file=truststore.jks
 
 ## Deploy the Persistent Volume & Persistent Volume Claim
 kubectl create -f persistent-volumes.yaml

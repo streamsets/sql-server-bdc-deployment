@@ -80,7 +80,3 @@ kubectl delete role streamsets-transformer -n "${KUBE_NAMESPACE}"
 kubectl delete rolebinding streamsets-transformer
 kubectl delete service streamsets-transformer
 kubectl delete ingresses.extensions streamsets-transformer
-# Delete all completed Transformer Driver pods
-kubectl delete pod --field-selector=status.phase==Succeeded
-kubectl delete persistentvolumeclaims streamsets-transformer-pvc
-kubectl delete persistentvolume streamsets-transformer-vol

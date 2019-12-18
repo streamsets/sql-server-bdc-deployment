@@ -49,27 +49,6 @@ kubectl create namespace "${KUBE_NAMESPACE}"
 # shellcheck disable=SC2046
 kubectl config set-context $(kubectl config current-context) --namespace="${KUBE_NAMESPACE}"
 
-# Azure Files share in Azure Kubernetes Service (AKS) for Persistent Volume support for Transformer
-AKS_PERS_STORAGE_ACCOUNT_NAME=transformer
-AKS_PERS_LOCATION=westus
-AKS_PERS_SHARE_NAME=streamsets-transformer
-
-# Create a storage account
-az storage account create -n $AKS_PERS_STORAGE_ACCOUNT_NAME -g "$RESOURCE_GROUP" -l $AKS_PERS_LOCATION --sku Standard_LRS
-
-# Export the connection string as an environment variable, this is used when creating the Azure file share
-export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string -n $AKS_PERS_STORAGE_ACCOUNT_NAME -g "$RESOURCE_GROUP" -o tsv)
-
-# Create the file share
-az storage share create -n $AKS_PERS_SHARE_NAME --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
-
-# Get storage account key
-STORAGE_KEY=$(az storage account keys list --resource-group "$RESOURCE_GROUP" --account-name $AKS_PERS_STORAGE_ACCOUNT_NAME --query "[0].value" -o tsv)
-
-# Echo storage account name and key
-echo Storage account name: $AKS_PERS_STORAGE_ACCOUNT_NAME
-echo Storage account key: "$STORAGE_KEY"
-
 ## Get auth token fron Control Hub
 echo "Getting SCH Token..."
 export SCH_TOKEN=$(curl -s -X POST -d "{\"userName\":\"${SCH_USER}\", \"password\": \"${SCH_PASSWORD}\"}" ${SCH_URL}/security/public-rest/v1/authentication/login --header "Content-Type:application/json" --header "X-Requested-By:SDC" -c - | sed -n '/SS-SSO-LOGIN/p' | perl -lane 'print $F[$#F]')
@@ -89,11 +68,9 @@ if [ -z "$TRANSFORMER_TOKEN" ]; then
   exit 1
 fi
 
-## Store the agent token, azurestorageaccountname, and azurestorageaccountkey in a secret
+## Store the Transformer token in a secret
 kubectl create secret generic streamsets-transformer-creds \
-    --from-literal=transformer_token_string="${TRANSFORMER_TOKEN}" \
-    --from-literal=azurestorageaccountname=$AKS_PERS_STORAGE_ACCOUNT_NAME \
-    --from-literal=azurestorageaccountkey="$STORAGE_KEY"
+    --from-literal=transformer_token_string="${TRANSFORMER_TOKEN}"
 
 ## Generate a UUID for the transformer
 transformer_id=$(docker run --rm andyneff/uuidgen uuidgen -t)
@@ -169,9 +146,6 @@ keytool -importkeystore -srckeystore "$JAVA_HOME"/jre/lib/security/cacerts -srcs
 
 ## Store the truststore.jks in a secret
 kubectl create secret generic streamsets-transformer-cert --namespace="${KUBE_NAMESPACE}" --from-file=truststore.jks
-
-## Deploy the Persistent Volume & Persistent Volume Claim
-kubectl create -f persistent-volumes.yaml
 
 ## Deploy the Transformer
 kubectl create -f transformer.yaml

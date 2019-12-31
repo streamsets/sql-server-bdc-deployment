@@ -17,15 +17,15 @@
 # shellcheck disable=SC2112
 function usage() {
   echo "
-    Usage: $0 <ControlHub_URL> <SCH_ORG> <SCH_USER> <SCH_USER_PASSWORD> <KUBE_NAMESPACE> <CLUSTER_NAME> <RESOURCE_GROUP>
+    Usage: $0 <ControlHub_URL> <SCH_ORG> <SCH_USER> <SCH_USER_PASSWORD> <KUBE_NAMESPACE>
 
-    Example: $0 https://cloud.streamsets.com testOrg streamsetsUser@testOrg admin1234 namespace clusterName resourceGroup
+    Example: $0 https://cloud.streamsets.com testOrg streamsetsUser@testOrg admin1234 namespace
   "
   # shellcheck disable=SC2242
   exit -1
 }
 
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 5 ]; then
     usage
 fi
 
@@ -35,15 +35,7 @@ SCH_ORG=$2
 SCH_USER=$3
 SCH_PASSWORD=$4
 KUBE_NAMESPACE=$5
-CLUSTER_NAME=$6
-RESOURCE_GROUP=$7
 BDC_KUBE_NAMESPACE="mssql-cluster"
-
-## Update kubectl config with connection info
-az aks get-credentials --resource-group "${RESOURCE_GROUP}" --name ${CLUSTER_NAME}
-
-## Create Namespace
-kubectl create namespace "${KUBE_NAMESPACE}"
 
 ## Set Context
 # shellcheck disable=SC2046

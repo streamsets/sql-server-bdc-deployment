@@ -17,14 +17,14 @@ fi
 
 # Please read the StreamSets EULA https://streamsets.com/eula.
 # If you agree please change the following line to ACCEPT_EULA=Y
-ACCEPT_EULA=N
+ACCEPT_EULA=Y
 SCH_URL=https://cloud.streamsets.com # ControlHub_URL
-SCH_ORG=organizationname
+SCH_ORG=madhu
 SCH_USER=$1
 SCH_PASSWORD=$2
 KUBE_NAMESPACE=mssql-cluster
-CLUSTER_NAME=kubcluster
-RESOURCE_GROUP=mssql
+CLUSTER_NAME=kubcluster-madhu
+RESOURCE_GROUP=madhuResourceGroup
 
 SCH_DEPLOYMENT_NAME="Authoring SDC"
 SCH_DEPLOYMENT_LABELS=auth-sdc
@@ -101,7 +101,7 @@ rm -rf ${PWD}/_tmp_deployment.yaml
 
 echo "Deploying StreamSets Transformer..."
 pushd ./transformer
-./deploy-transformer-on-aks.sh ${SCH_URL} ${SCH_ORG} ${SCH_USER} ${SCH_PASSWORD} ${KUBE_NAMESPACE} ${CLUSTER_NAME} ${RESOURCE_GROUP}
+./deploy-transformer-on-aks.sh ${SCH_URL} ${SCH_ORG} ${SCH_USER} ${SCH_PASSWORD} ${KUBE_NAMESPACE}
 popd
 
 echo "Deployment Successful"

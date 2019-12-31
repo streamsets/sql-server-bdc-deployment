@@ -1,0 +1,6 @@
+[ req ]
+distinguished_name  = traefik_ext
+
+[ traefik_ext ]
+extendedKeyUsage = serverAuth
+

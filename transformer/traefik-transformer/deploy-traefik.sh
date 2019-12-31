@@ -43,7 +43,9 @@ openssl req -newkey rsa:2048 \
     -x509 \
     -days 365 \
     -out tls.crt \
-    -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=mycompany.com"
+    -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=mycompany.com" \
+    -extensions traefik_ext \
+    -config myconfig.cnf
 
 # Store the cert in a secret
 kubectl create secret generic traefik-cert-transformer --namespace=${KUBE_NAMESPACE} \

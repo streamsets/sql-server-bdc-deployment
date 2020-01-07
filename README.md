@@ -33,10 +33,10 @@ To use the deployment script, you must have the following prerequisites:
 
    ```./streamsets-bdc-deployment-all-in-one.sh <ControlHub_username> <ControlHub_password>```
 
-   For example: ./streamsets-bdc-deployment-all-in-one.sh user@myorg password
+   For example: `./streamsets-bdc-deployment-all-in-one.sh user@myorg password`
 
-    - If asked to overwrite an object in the kubeconfig file, say yes: `y`.
-    - If everything runs as expected, you should see the following message: `Deployment Successful`.
+    - If asked to overwrite an object in the kubeconfig file, say yes: `y`
+    - If everything runs as expected, you should see the following message: "Deployment Successful"
 
 ## Running the Teardown Script
 
@@ -54,9 +54,10 @@ Any Control Hub objects that you create, such as pipelines, jobs, and topologies
    * RESOURCE_GROUP: Azure resource group
 
 3. Run the script using the following command:
+ 
    ```./streamsets-bdc-deployment-all-in-one-tear-down.sh <ControlHub_username> <ControlHub_password>```
 
-   For example: ./streamsets-bdc-deployment-all-in-one-tear-down.sh user@myorg password
+   For example: `./streamsets-bdc-deployment-all-in-one-tear-down.sh user@myorg password`
 
-   - If asked to overwrite an object in the kubeconfig file, say yes: `y`.
-   - If everything runs as expected, you should see the following message: `Successfully deleted all corresponding objects`.
+   - If asked to overwrite an object in the kubeconfig file, say yes: `y`
+   - If everything runs as expected, you should see the following message: "Successfully deleted all corresponding objects"

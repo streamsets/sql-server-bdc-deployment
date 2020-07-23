@@ -18,7 +18,7 @@ spec:
       serviceAccountName: streamsets-transformer
       containers:
         - name: streamsets
-          image: streamsets/transformer:3.12.0-RC4
+          image: streamsets/transformer:latest
           ports:
             - containerPort: 19630
               protocol: TCP

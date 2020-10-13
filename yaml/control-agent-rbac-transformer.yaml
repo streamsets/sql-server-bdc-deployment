@@ -1,0 +1,44 @@
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: streamsets-transformer
+  labels:
+    app.kubernetes.io/name: streamsets-transformer
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: streamsets-transformer
+  labels:
+    app.kubernetes.io/name: streamsets-transformer
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "update"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: streamsets-transformer
+  labels:
+    app.kubernetes.io/name: streamsets-transformer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: streamsets-transformer
+subjects:
+  - kind: ServiceAccount
+    name: streamsets-transformer
+---

@@ -35,7 +35,7 @@ SCH_ORG=$2
 SCH_USER=$3
 SCH_PASSWORD=$4
 KUBE_NAMESPACE=$5
-BDC_KUBE_NAMESPACE="mssql-cluster"
+BDC_KUBE_NAMESPACE="streamsets"
 
 ## Set Context
 # shellcheck disable=SC2046
@@ -103,21 +103,8 @@ kubectl create configmap streamsets-transformer-config \
     --from-literal=transformer_id="${transformer_id}" \
     --from-literal=transformer_external_url=https://"${external_ip}"
 
-## Create a service account to run the transformer
-kubectl create serviceaccount streamsets-transformer --namespace="${KUBE_NAMESPACE}"
-
-## Create a role for the service account with permissions to
-## create pods (among other things)
-kubectl create role streamsets-transformer \
-    --verb=get,list,watch,create,update,delete,patch \
-    --resource=pods,secrets,configmaps,replicasets,ingresses,services \
-    --namespace="${KUBE_NAMESPACE}"
-
-## Bind the role to the service account
-kubectl create rolebinding streamsets-transformer \
-    --role=streamsets-transformer \
-    --serviceaccount="${KUBE_NAMESPACE}":streamsets-transformer \
-    --namespace="${KUBE_NAMESPACE}"
+## Create a Service Account to run the Control Agent
+kubectl create -f yaml/control-agent-rbac-transformer.yaml
 
 ## Extract certificate from SQL Server 2019 Big Data Cluster Gateway IP
 gatewayIp=$(kubectl get services --field-selector metadata.name=gateway-svc-external --namespace="${BDC_KUBE_NAMESPACE}" -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")

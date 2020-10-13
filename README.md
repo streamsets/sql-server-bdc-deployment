@@ -1,12 +1,20 @@
 # StreamSets SQL Server BDC Deployment Script
 
-The StreamSets SQL Server BDC deployment script deploys a Control Hub Provisioning Agent on a Kubernetes cluster and provisions one Data Collector and one Transformer that are enabled to connect to SQL Server 2019 Big Data Cluster (BDC) through Control Hub. 
+The StreamSets SQL Server BDC deployment script enables you to seamlessly spin up Data Collector and Transformer instances, registered to Control Hub.
+
+The script auto-creates the following for you:
+
+1. A namespace called ‘streamsets’ in your Kubernetes cluster (adjacent to your BDC cluster) where all components described below will be created.
+2. A provisioning agent to automatically provision Data Collector containers in the Kubernetes cluster. The agent reports to StreamSets Control Hub and executes commands on its behalf in the Kubernetes cluster.
+3. A Traefik ingress controller is used to route external traffic into the Data Collector & Transformer service and provide TLS termination. The SSL configuration creates and configures self-signed certificates.
+4. A Data Collector instance with access to the UI via a public HTTPS URL. This is created via a Kubernetes deployment of replica 1, a service for the deployment and an ingress. You can use Data Collector for both authoring and execution of data flows for ingesting data to and from SQL Server 2019 Big Data Clusters.
+5. A Transformer instance with access to the UI via a public HTTPS URL. This is created via a Kubernetes deployment of replica 1, a service for the deployment and an ingress. You can use Transformer for both authoring and execution of data flows that run on Spark. Transformer submits Spark jobs that are executed in the SQL Server 2019 BDC cluster.
+6. Before you can use Data Collector and Transformer instances for designing, validating and running pipelines from Control Hub, you must click on the Data Collector and Transformer's https urls individually from Control Hub and accept the self-signed certificate on your browser.
 
 Use this script to quickly add and register a Data Collector and Transformer to your Control Hub organization, allowing you to easily experiment with building and testing SQL Server 2019 BDC pipelines and jobs.
 
-The provisioned Data Collector is HTTPS-enabled and registered with the organization so you can use it as an authoring Data Collector. The provisioned Transformer is also HTTPS-enabled and registered with the organization. You can use the Transformer for both authoring and execution since Transformer submits Spark jobs that are executed in the SQL Server 2019 BDC cluster.
-
-**Important:** This script is for development use only. Use the teardown script to remove all components created by this script.
+<b> **Important:** This script is for development use only. Use this script to quickly add and register a Data Collector and Transformer to your Control Hub organization, allowing you to easily experiment with building and testing SQL Server 2019 BDC pipelines and jobs. Use the teardown script to remove all components created by this script.
+Follow the security guidelines set by your organization for production ready deployments. </b>
 
 ## Prerequisites
 

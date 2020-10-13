@@ -5,7 +5,7 @@ function usage() {
   echo "
     Usage: $0 <SCH_USER> <SCH_USER_PASSWORD>
 
-    Example: $0 rony@microsoft-partner rony1234
+    Example: $0 streamsetsUser@testOrg admin1234
   "
   # shellcheck disable=SC2242
   exit -1
@@ -16,12 +16,12 @@ if [ "$#" -ne 2 ]; then
 fi
 
 SCH_URL=https://cloud.streamsets.com # ControlHub_URL
-SCH_ORG=microsoft-partner
+SCH_ORG=testOrg
 SCH_USER=$1
 SCH_PASSWORD=$2
-KUBE_NAMESPACE=mssql-cluster
-CLUSTER_NAME=mssql-jha-test
-RESOURCE_GROUP=mssql-jha-test
+KUBE_NAMESPACE=streamsets
+CLUSTER_NAME=kubcluster
+RESOURCE_GROUP=sqlbdcgroup
 
 SCH_DEPLOYMENT_NAME="Authoring SDC"
 SCH_DEPLOYMENT_LABELS=auth-sdc

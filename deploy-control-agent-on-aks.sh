@@ -66,21 +66,8 @@ kubectl create configmap streamsets-config \
     --from-literal=sch_url=${SCH_URL} \
     --from-literal=agent_id=${agent_id}
 
-## Create a service account to run the agent
-kubectl create serviceaccount streamsets-agent --namespace=${KUBE_NAMESPACE}
-
-## Create a role for the service account with permissions to
-## create pods (among other things)
-kubectl create role streamsets-agent \
-    --verb=get,list,watch,create,update,delete,patch \
-    --resource=pods,secrets,replicasets,deployments.apps,deployments.extensions,ingresses,services,horizontalpodautoscalers \
-    --namespace=${KUBE_NAMESPACE}
-
-## Bind the role to the service account
-kubectl create rolebinding streamsets-agent \
-    --role=streamsets-agent \
-    --serviceaccount=${KUBE_NAMESPACE}:streamsets-agent \
-    --namespace=${KUBE_NAMESPACE}
+## Create a Service Account to run the Control Agent
+kubectl create -f yaml/control-agent-rbac.yaml
 
 ## Deploy the control agent
 kubectl create -f control-agent.yaml

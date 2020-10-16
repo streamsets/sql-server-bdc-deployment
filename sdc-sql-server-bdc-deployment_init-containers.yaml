@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: authoring-datacollector-deployment
-  namespace: mssql-cluster
+  namespace: streamsets
   labels:
     app: authoring-datacollector
 spec:
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: authoring-datacollector
-        image: xavibaques/sdc-sql-server-bdc:latest
+        image: streamsets/datacollector-bdc:latest
         ports:
         - containerPort: 18630
           protocol: TCP
